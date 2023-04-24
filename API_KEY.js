@@ -1,0 +1,1 @@
+export default API_KEY = "lpIUQtbNoalet5BiOHYnRr05hzWism1G";

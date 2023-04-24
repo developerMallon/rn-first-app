@@ -1,89 +1,96 @@
-import React, { useState } from 'react';
-import { StyleSheet, TextInput, View, StatusBar, SafeAreaView, ImageBackground, Keyboard } from 'react-native';
-import { Ionicons } from 'react-native-vector-icons';
-import axios from 'axios';
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  StatusBar,
+  SafeAreaView,
+  ImageBackground,
+  Keyboard,
+  FlatList,
+  Image,
+  Dimensions,
+  TouchableOpacity
+} from "react-native";
+import axios from "axios";
+import API_KEY from "../../API_KEY";
+import Cabecalho from "../components/Cabecalho"
 
-const Results = ({ navigation, route }) => {
-    const choice = route.params.choice;
-    const link = `http://rapi.giphy.com/v1/${choice}/search`;
-    const { text, setText } = useState("");
+const { width, height } = Dimensions.get("window");
+const IMAGE_WIDTH =  width;
 
-    const { data, setData } = useState([])
+const Resultados = ({ navigation, route }) => {
+  const choice = route.params.choice;
+  const link = `https://api.giphy.com/v1/${choice}/search`;
+  const [text, setText] = useState("");
 
-    const finder = async (text) => {
-        Keyboard.dismiss();
+  const [data, setData] = useState([]);
 
-        try {
-            const results = await axios.get(link, {
-                params: {
-                    api_key: "lpIUQtbNoalet5BiOHYnRr05hzWism1G",
-                    q: text,
-                    lang: "pt"
-                }
-            })
-            console.log(results)
-        } catch (err) {
-            console.log(err)
-        }
+  const solicitar = async (text) => {
+    Keyboard.dismiss();
+    try {
+      const resultados = await axios.get(link, {
+        params: {
+          api_key: API_KEY,
+          q: text,
+          lang: "pt",
+        },
+      });
+      setData(resultados.data.data);
+    } catch (err) {
+      console.log(err);
     }
+  };
 
-    return (
-        <ImageBackground
-            source={require("../../assets/BG.png")}
-            style={styles.container}
-        >
-            <SafeAreaView style={styles.view}>
-                <View style={styles.header}>
-                    <Ionicons
-                        style={styles.icon}
-                        name="chevron-back"
-                        size={40}
-                        color="white"
-                        onPress={() => { navigation.pop() }}
-                    />
-                    <TextInput
-                        style={styles.input}
-                        placeholder='Pesquisar'
-                        autoCapitalize='none'
-                        autoCorrect={false}
-                        onChangeText={newText => setText(newText)}
-                        defaultValue={text}
-                    />
-                    <Ionicons
-                        style={styles.icon}
-                        name="search"
-                        size={40}
-                        color="white"
-                        onPress={() => { }}
-                    />
-                </View>
-            </SafeAreaView>
-        </ImageBackground>
-    );
-}
+  return (
+    <ImageBackground
+      source={require("../../assets/BG.png")}
+      style={styles.container}
+    >
+      <SafeAreaView style={styles.view}>
+        <Cabecalho 
+            navigation={navigation} 
+            text={text}
+            setText={setText}
+            solicitar={solicitar}
+        />
+        <FlatList 
+            data={data}
+            keyExtractor={(element) => {element.id}}
+            numColumns={2}
+            renderItem={({item}) => {
+                return(
+                    <TouchableOpacity
+                        onPress={()=>{ navigation.navigate("Detalhes", {
+                            item: item,
+                        })}}
+                    >
+
+                        <Image 
+                            style={styles.image}
+                            source={{ uri: item.images.preview_gif.url }}
+                        />
+                    </TouchableOpacity>
+                )
+            }}
+        />
+      </SafeAreaView>
+    </ImageBackground>
+  );
+};
 
 const styles = StyleSheet.create({
-    view: {
-        marginTop: StatusBar.currentHeight + 30,
-    },
-    container: {
-        flex: 1,
-    },
-    header: {
-        flexDirection: "row",
-        justifyContent: "space-between"
-    },
-    input: {
-        flex: 1,
-        backgroundColor: "white",
-        borderRadius: 15,
-        fontSize: 20,
-        paddingHorizontal: 10,
-        marginRight: 5
-    },
-    icon: {
-        marginHorizontal: 10
-    }
-})
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  view: {
+    marginTop: StatusBar.currentHeight + 20,
+  },
+  image: {
+    width: IMAGE_WIDTH*0.4,
+    height: IMAGE_WIDTH*0.4,
+    margin: 10,
+  }
+});
 
-export default Results;
+export default Resultados;

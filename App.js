@@ -16,7 +16,8 @@ const App = () => {
           options={{ headerShown: false }} />
         <Stack.Screen name="Resultados" component={Results}
           options={{ headerShown: false }} />
-        <Stack.Screen name="Detalhes" component={Details} />
+        <Stack.Screen name="Detalhes" component={Details}
+          options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
